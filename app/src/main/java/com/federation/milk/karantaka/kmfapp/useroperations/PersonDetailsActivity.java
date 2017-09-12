@@ -52,7 +52,7 @@ public class PersonDetailsActivity extends AppCompatActivity {
         });
 
         // list view
-        String[] persons = {"iranna", "viswanath", "abhinash", "arun", "pradhan", "kashi", "dinesh", "end of list"};
+        String[] persons = {"iranna", "viswanath", "abhinash", "arun", "pradhan", "kashi", "dinesh"};
         TransactionEntity[] entities = new TransactionEntity[16];
         for (int i = 0; i < 8; i++) {
             entities[i] = new TransactionEntity(10 + (9 * i), new Date(), i, persons[i], Type.DEPOSITED);

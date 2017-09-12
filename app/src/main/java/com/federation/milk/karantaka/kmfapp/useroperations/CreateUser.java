@@ -31,4 +31,8 @@ public class CreateUser extends AppCompatActivity {
         Toast.makeText(this, userEntity.toString(), Toast.LENGTH_SHORT).show();
         backToMainActivity(view);
     }
+
+    public void onClickCancelAction(View view) {
+        backToMainActivity(view);
+    }
 }
