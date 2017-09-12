@@ -54,12 +54,12 @@ public class PersonDetailsActivity extends AppCompatActivity {
         // list view
         String[] persons = {"iranna", "viswanath", "abhinash", "arun", "pradhan", "kashi", "dinesh"};
         TransactionEntity[] entities = new TransactionEntity[16];
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 7; i++) {
             entities[i] = new TransactionEntity(10 + (9 * i), new Date(), i, persons[i], Type.DEPOSITED);
         }
 
-        for (int i = 8; i < 16; i++) {
-            entities[i] = new TransactionEntity(10 + (19 * i), new Date(), 0, persons[i - 8], Type.PAID);
+        for (int i = 7; i < 14; i++) {
+            entities[i] = new TransactionEntity(10 + (19 * i), new Date(), 0, persons[i - 7], Type.PAID);
         }
         ListView listView = (ListView) findViewById(R.id.transaction_list);
         final ListAdapter adapter = new TransactionListAdapter(context, entities);

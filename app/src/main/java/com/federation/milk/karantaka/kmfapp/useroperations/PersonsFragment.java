@@ -30,7 +30,7 @@ public class PersonsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.persons_fragments, container, false);
-        String[] persons = {"iranna", "viswanath", "abhinash", "arun", "pradhan", "kashi", "dinesh", "end of list"};
+        String[] persons = {"iranna", "viswanath", "abhinash", "arun", "pradhan", "kashi", "dinesh"};
         ListView listView = view.findViewById(R.id.person_list);
         final ListAdapter adapter = new PersonListAdapter(context, persons);
         listView.setAdapter(adapter);
