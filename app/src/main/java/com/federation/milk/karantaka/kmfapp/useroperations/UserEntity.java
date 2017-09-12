@@ -1,6 +1,8 @@
 package com.federation.milk.karantaka.kmfapp.useroperations;
 
-public class UserEntity {
+import java.io.Serializable;
+
+public class UserEntity implements Serializable {
 
     private final String firstName;
     private final String lastName;

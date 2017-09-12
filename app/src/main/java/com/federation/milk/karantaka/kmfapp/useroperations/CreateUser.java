@@ -1,10 +1,10 @@
 package com.federation.milk.karantaka.kmfapp.useroperations;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.federation.milk.karantaka.kmfapp.R;
 
@@ -28,8 +28,10 @@ public class CreateUser extends AppCompatActivity {
         TextView lastName = (TextView) findViewById(R.id.last_name);
         // do rest call under dairy opened
         UserEntity userEntity = new UserEntity(firstName.getText().toString(), lastName.getText().toString(), personId.getText().toString());
-        Toast.makeText(this, userEntity.toString(), Toast.LENGTH_SHORT).show();
-        backToMainActivity(view);
+        Intent goingBack = new Intent();
+        goingBack.putExtra("user", userEntity);
+        setResult(RESULT_OK, goingBack);
+        finish();
     }
 
     public void onClickCancelAction(View view) {

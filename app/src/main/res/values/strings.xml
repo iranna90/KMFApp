@@ -16,6 +16,7 @@
     <string name="first_name_title">First Name:</string>
     <string name="number_of_liters">Number of liters</string>
     <string name="person_name">Person Name</string>
+    <string name="amount">Amount</string>
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
     <string name="person_id">Person Id</string>
