@@ -27,7 +27,7 @@ public class CreateUser extends AppCompatActivity {
         TextView firstName = (TextView) findViewById(R.id.first_name);
         TextView lastName = (TextView) findViewById(R.id.last_name);
         // do rest call under dairy opened
-        UserEntity userEntity = new UserEntity(firstName.getText().toString(), lastName.getText().toString(), personId.getText().toString());
+        UserEntity userEntity = new UserEntity(10, firstName.getText().toString(), lastName.getText().toString(), personId.getText().toString());
         Intent goingBack = new Intent();
         goingBack.putExtra("user", userEntity);
         setResult(RESULT_OK, goingBack);

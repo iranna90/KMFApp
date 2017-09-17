@@ -1,6 +1,7 @@
 package com.federation.milk.karantaka.kmfapp.useroperations;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +14,9 @@ import com.federation.milk.karantaka.kmfapp.R;
  * Created by iranna.patil on 09/09/2017.
  */
 
-public class PersonListAdapter extends ArrayAdapter<String> {
+public class PersonListAdapter extends ArrayAdapter<UserEntity> {
 
-    public PersonListAdapter(Context context, String[] values) {
+    public PersonListAdapter(Context context, UserEntity[] values) {
         super(context, R.layout.person_row_layout, values);
     }
 
@@ -38,14 +39,20 @@ public class PersonListAdapter extends ArrayAdapter<String> {
         View theView = theInflater.inflate(R.layout.person_row_layout, parent, false);
 
         // We retrieve the text from the array
-        String person = getItem(position);
+        UserEntity person = getItem(position);
 
-        // Get the TextView we want to edit
-        TextView theTextView = (TextView) theView.findViewById(R.id.person_row);
+        Log.d("User detaisls", person.toString());
+        TextView firstNameView = (TextView) theView.findViewById(R.id.first_name);
+        firstNameView.setText(person.getFirstName());
 
-        // Put the next TV Show into the TextView
-        theTextView.setText(person);
+        TextView lastNameView = (TextView) theView.findViewById(R.id.last_name);
+        lastNameView.setText(person.getLastName());
 
+        TextView personIdView = (TextView) theView.findViewById(R.id.aadhar_id);
+        personIdView.setText(person.getPersonId());
+
+        TextView amountView = (TextView) theView.findViewById(R.id.amount);
+        amountView.setText(String.valueOf(person.getAmount()));
         return theView;
 
     }
