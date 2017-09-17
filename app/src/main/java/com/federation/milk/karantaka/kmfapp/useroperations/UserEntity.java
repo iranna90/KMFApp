@@ -1,5 +1,8 @@
 package com.federation.milk.karantaka.kmfapp.useroperations;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 
 public class UserEntity implements Serializable {
@@ -9,7 +12,11 @@ public class UserEntity implements Serializable {
     private final String lastName;
     private final String personId;
 
-    public UserEntity(int amount, String firstName, String lastName, String personId) {
+    @JsonCreator
+    public UserEntity(@JsonProperty("amount") int amount,
+                      @JsonProperty("firstName") String firstName,
+                      @JsonProperty("lastName") String lastName,
+                      @JsonProperty("personId") String personId) {
         this.amount = amount;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -35,7 +42,8 @@ public class UserEntity implements Serializable {
     @Override
     public String toString() {
         return "UserEntity{" +
-                "firstName='" + firstName + '\'' +
+                "amount=" + amount +
+                ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", personId='" + personId + '\'' +
                 '}';

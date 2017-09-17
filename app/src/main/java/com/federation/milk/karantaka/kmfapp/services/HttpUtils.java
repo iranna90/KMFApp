@@ -1,28 +1,28 @@
 package com.federation.milk.karantaka.kmfapp.services;
 
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+
+import cz.msebera.android.httpclient.HttpResponse;
+import cz.msebera.android.httpclient.client.HttpClient;
+import cz.msebera.android.httpclient.client.methods.HttpGet;
+import cz.msebera.android.httpclient.impl.client.HttpClientBuilder;
 
 public class HttpUtils {
     private static final String BASE_URL = "http://192.168.178.178:1234/kmf/dairies/";
 
-    private static final AsyncHttpClient client = new AsyncHttpClient();
+    private static final HttpClient client = HttpClientBuilder.create().build();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        client.get(getAbsoluteUrl(url), params, responseHandler);
+    public static <T> T get(String url, Class<T> responseType) throws IOException {
+        HttpGet request = new HttpGet(getAbsoluteUrl(url));
+        HttpResponse httpResponse = client.execute(request);
+        return extractEntityFromResponse(httpResponse, responseType);
     }
 
-    public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        client.post(getAbsoluteUrl(url), params, responseHandler);
-    }
-
-    public static void getByUrl(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        client.get(url, params, responseHandler);
-    }
-
-    public static void postByUrl(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        client.post(url, params, responseHandler);
+    private static <T> T extractEntityFromResponse(final HttpResponse response, final Class<T> clazz) throws IOException {
+        return objectMapper.readValue(response.getEntity().getContent(), clazz);
     }
 
     private static String getAbsoluteUrl(String relativeUrl) {
