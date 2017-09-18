@@ -18,6 +18,8 @@ import android.widget.Toast;
 import com.federation.milk.karantaka.kmfapp.useroperations.CreateUser;
 import com.federation.milk.karantaka.kmfapp.useroperations.UserEntity;
 
+import static java.lang.String.format;
+
 public class MainActivity extends AppCompatActivity {
 
     private Context context;
@@ -92,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         UserEntity entity = (UserEntity) data.getSerializableExtra("user");
-        Toast.makeText(this, "User created " + entity.toString(), Toast.LENGTH_SHORT).show();
+        if (entity != null) {
+            Toast.makeText(this, format("User with id %s created successfully.", entity.toString()), Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -1,5 +1,8 @@
 package com.federation.milk.karantaka.kmfapp.transactions;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Date;
 
 /**
@@ -9,17 +12,19 @@ import java.util.Date;
 public class TransactionEntity {
 
     private final long amount;
-    private final Date date;
-    private final int numberOfLiters;
+    private final Date day;
     private final String personName;
     private final Type type;
 
-    public TransactionEntity(long amount, Date date, int numberOfLiters, String personName, Type type) {
+    @JsonCreator
+    public TransactionEntity(@JsonProperty("amount") long amount,
+                             @JsonProperty("day") Date date,
+                             @JsonProperty("numberOfLiters") int numberOfLiters,
+                             @JsonProperty("personName") String personName) {
         this.amount = amount;
-        this.date = date;
-        this.numberOfLiters = numberOfLiters;
+        this.day = date;
         this.personName = personName;
-        this.type = type;
+        this.type = numberOfLiters == 0 ? Type.PAID : Type.DEPOSITED;
     }
 
     public long getAmount() {
@@ -27,11 +32,7 @@ public class TransactionEntity {
     }
 
     public Date getDate() {
-        return date;
-    }
-
-    public int getNumberOfLiters() {
-        return numberOfLiters;
+        return day;
     }
 
     public String getPersonName() {
@@ -40,5 +41,15 @@ public class TransactionEntity {
 
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public String toString() {
+        return "TransactionEntity{" +
+                "amount=" + amount +
+                ", day=" + day +
+                ", personName='" + personName + '\'' +
+                ", type=" + type +
+                '}';
     }
 }

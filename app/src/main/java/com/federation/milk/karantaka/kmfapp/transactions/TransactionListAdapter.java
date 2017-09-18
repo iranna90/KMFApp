@@ -1,6 +1,7 @@
 package com.federation.milk.karantaka.kmfapp.transactions;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,11 +10,15 @@ import android.widget.TextView;
 
 import com.federation.milk.karantaka.kmfapp.R;
 
+import java.text.SimpleDateFormat;
+
 /**
  * Created by iranna.patil on 09/09/2017.
  */
 
 public class TransactionListAdapter extends ArrayAdapter<TransactionEntity> {
+
+    private final SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
 
     public TransactionListAdapter(Context context, TransactionEntity[] values) {
         super(context, R.layout.transaction_row_layout, values);
@@ -23,29 +28,13 @@ public class TransactionListAdapter extends ArrayAdapter<TransactionEntity> {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         LayoutInflater theInflater = LayoutInflater.from(getContext());
-        View theView = theInflater.inflate(R.layout.transaction_row_layout, parent, false);
+        View transactionRowView = theInflater.inflate(R.layout.transaction_row_layout, parent, false);
         TransactionEntity transactionEntity = getItem(position);
-        TextView theTextView = (TextView) theView.findViewById(R.id.transaction_item);
-        String item;
-        if (transactionEntity.getType().equals(Type.PAID)) {
-            item = "Amount " +
-                    transactionEntity.getAmount() +
-                    " paid to " +
-                    transactionEntity.getPersonName() +
-                    " on " +
-                    transactionEntity.getDate();
-        } else {
-            item = "Amount " +
-                    transactionEntity.getAmount() +
-                    "(" +
-                    transactionEntity.getNumberOfLiters() +
-                    "liters) deposited by user " +
-                    transactionEntity.getPersonName() +
-                    " on " +
-                    transactionEntity.getDate();
-        }
-        theTextView.setText(item);
-        return theView;
+        ((TextView) transactionRowView.findViewById(R.id.person_name)).setText(transactionEntity.getPersonName());
+        ((TextView) transactionRowView.findViewById(R.id.date)).setText(formatter.format(transactionEntity.getDate()));
+        final String amountPrefix = transactionEntity.getType() == Type.PAID ? "-" : "+";
+        ((TextView) transactionRowView.findViewById(R.id.amount)).setText(amountPrefix + String.valueOf(transactionEntity.getAmount()));
+        return transactionRowView;
 
     }
 }

@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 
 import com.federation.milk.karantaka.kmfapp.R;
 import com.federation.milk.karantaka.kmfapp.services.HttpUtils;
@@ -26,7 +25,6 @@ import java.util.Collections;
 
 public class PersonsFragment extends Fragment {
     private Context context;
-    private ProgressBar progress;
 
     public void setContext(Context context) {
         this.context = context;
@@ -44,7 +42,7 @@ public class PersonsFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 UserEntity selectedItem = (UserEntity) adapterView.getItemAtPosition(position);
                 Intent personDetailsScreen = new Intent(context, PersonDetailsActivity.class);
-                personDetailsScreen.putExtra("personId", selectedItem.getPersonId());
+                personDetailsScreen.putExtra("user", selectedItem);
                 startActivity(personDetailsScreen);
             }
         });
