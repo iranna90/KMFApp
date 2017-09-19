@@ -45,7 +45,6 @@ public class PersonDetailsActivity extends AppCompatActivity {
 
         Intent activityThatCalled = getIntent();
         final UserEntity user = (UserEntity) activityThatCalled.getSerializableExtra("user");
-        Log.d("user is ", user.toString());
         ((TextView) findViewById(R.id.first_name)).setText(user.getFirstName());
         ((TextView) findViewById(R.id.last_name)).setText(user.getLastName());
         ((TextView) findViewById(R.id.aadhar_id)).setText(user.getPersonId());

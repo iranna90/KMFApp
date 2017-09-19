@@ -18,6 +18,8 @@ import android.widget.Toast;
 import com.federation.milk.karantaka.kmfapp.useroperations.CreateUser;
 import com.federation.milk.karantaka.kmfapp.useroperations.UserEntity;
 
+import java.io.Serializable;
+
 import static java.lang.String.format;
 
 public class MainActivity extends AppCompatActivity {
@@ -94,26 +96,6 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (data != null) {
             UserEntity entity = (UserEntity) data.getSerializableExtra("user");
-            context = this;
-            setContentView(R.layout.activity_main);
-            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar);
-            mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-            mSectionsPagerAdapter.setContext(this);
-            // Set up the ViewPager with the sections adapter.
-            mViewPager = (ViewPager) findViewById(R.id.container);
-            mViewPager.setAdapter(mSectionsPagerAdapter);
-            TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-            tabLayout.setupWithViewPager(mViewPager);
-            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_person);
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    final int resultCode1 = 1;
-                    Intent createUserIntent = new Intent(context, CreateUser.class);
-                    startActivityForResult(createUserIntent, resultCode1);
-                }
-            });
             Toast.makeText(this, format("User with id %s created successfully.", entity.toString()), Toast.LENGTH_SHORT).show();
         }
     }
