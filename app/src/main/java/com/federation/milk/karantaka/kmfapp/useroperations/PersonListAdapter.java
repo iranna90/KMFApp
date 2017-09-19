@@ -9,9 +9,11 @@ import android.widget.TextView;
 
 import com.federation.milk.karantaka.kmfapp.R;
 
+import java.util.List;
+
 public class PersonListAdapter extends ArrayAdapter<UserEntity> {
 
-    public PersonListAdapter(Context context, UserEntity[] values) {
+    public PersonListAdapter(Context context, List<UserEntity> values) {
         super(context, R.layout.person_row_layout, values);
     }
 

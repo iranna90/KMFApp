@@ -36,7 +36,10 @@ public class HttpUtils {
     }
 
     private static <T> T extractEntityFromResponse(final HttpResponse response, final Class<T> clazz) throws IOException {
-        return objectMapper.readValue(response.getEntity().getContent(), clazz);
+        if (response.getStatusLine().getStatusCode() == 200) {
+            return objectMapper.readValue(response.getEntity().getContent(), clazz);
+        }
+        return null;
     }
 
     private static String getAbsoluteUrl(String relativeUrl) {

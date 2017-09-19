@@ -20,7 +20,9 @@ import com.federation.milk.karantaka.kmfapp.R;
 import com.federation.milk.karantaka.kmfapp.services.HttpUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by iranna.patil on 09/09/2017.
@@ -28,7 +30,8 @@ import java.util.Collections;
 
 public class PersonsFragment extends Fragment {
     private Context context;
-    private final UserEntity[] users = new UserEntity[]{};
+    private final List<UserEntity> users = new ArrayList<>();
+    private static final int LOAD_LIMIT = 15;
 
     public void setContext(Context context) {
         this.context = context;
@@ -40,7 +43,7 @@ public class PersonsFragment extends Fragment {
         View view = inflater.inflate(R.layout.persons_fragments, container, false);
         ListView listView = view.findViewById(R.id.person_list);
         // load 10 items
-        addUsersToList(users, getPersons(10, 0));
+        users.addAll(getPersons(0));
         final ListAdapter adapter = new PersonListAdapter(context, users);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -57,30 +60,25 @@ public class PersonsFragment extends Fragment {
         return view;
     }
 
-    private void addUsersToList(UserEntity[] users, UserEntity[] persons) {
-        Log.d("retireved persons ", String.valueOf(persons.length));
-        int existingSize = users.length;
-        for (int i = 0; i < persons.length; i++) {
-            users[existingSize + i] = persons[i];
-        }
-    }
-
-    private UserEntity[] getPersons(int limit, int offset) {
+    private List<UserEntity> getPersons(int offset) {
         try {
-            return HttpUtils.get("khajuri/persons?limit=" + limit + "&offset=" + offset, Persons.class).getUsers();
+            Log.d("Calling persons ", String.valueOf(offset));
+            Persons persons = HttpUtils.get("khajuri/persons?limit=" + LOAD_LIMIT + "&offset=" + offset, Persons.class);
+            if (persons != null) {
+                return persons.getUsers();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return (UserEntity[]) Collections.EMPTY_LIST.toArray();
+        return Collections.EMPTY_LIST;
     }
 
     public class LazyLoader implements AbsListView.OnScrollListener {
 
-        private static final int DEFAULT_THRESHOLD = 10;
-
         private boolean loading = true;
+        // initial load
         private int previousTotal = 0;
-        private int threshold = DEFAULT_THRESHOLD;
+        private int threshold = 5;
 
         public LazyLoader() {
         }
@@ -92,13 +90,13 @@ public class PersonsFragment extends Fragment {
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
 
-            Log.d("state changed", "first:" + scrollState);
         }
 
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem,
                              int visibleItemCount, int totalItemCount) {
             Log.d("state changed", "first:" + firstVisibleItem + " v item: " + visibleItemCount + " count: " + totalItemCount);
+            Log.d("loading is ", String.valueOf(loading));
             if (loading) {
                 if (totalItemCount > previousTotal) {
                     // the loading has finished
@@ -110,7 +108,7 @@ public class PersonsFragment extends Fragment {
             // check if the List needs more data
             if (!loading && ((firstVisibleItem + visibleItemCount) >= (totalItemCount - threshold))) {
                 loading = true;
-
+                Log.d("Loading new list from " + totalItemCount, "start");
                 // List needs more data. Go fetch !!
                 loadMore(view, firstVisibleItem,
                         visibleItemCount, totalItemCount);
@@ -123,6 +121,7 @@ public class PersonsFragment extends Fragment {
                              int visibleItemCount, int totalItemCount) {
             Log.d("state changed", "first:" + firstVisibleItem + " v item: " + visibleItemCount + " count: " + totalItemCount);
             Toast.makeText(context, " First item " + firstVisibleItem + " count " + visibleItemCount + " total " + totalItemCount, Toast.LENGTH_SHORT).show();
+            users.addAll(getPersons(totalItemCount));
         }
     }
 }
