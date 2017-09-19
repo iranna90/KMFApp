@@ -23,7 +23,6 @@ import com.federation.milk.karantaka.kmfapp.transactions.UserTransactions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -65,8 +64,6 @@ public class PersonDetailsActivity extends AppCompatActivity {
         });
 
         ExecutorService services = Executors.newFixedThreadPool(2);
-        CountDownLatch countDown = new CountDownLatch(2);
-
         Future<UserTransactions> tran = services.submit(new GetTransactions(user.getPersonId()));
         Future<UserTransactions> paym = services.submit(new GetPayments(user.getPersonId()));
         List<TransactionEntity> transactions = new ArrayList<>();

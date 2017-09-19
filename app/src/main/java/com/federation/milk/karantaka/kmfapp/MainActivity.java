@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(createUserIntent, resultCode);
             }
         });
-
     }
 
     @Override
@@ -93,8 +92,28 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        UserEntity entity = (UserEntity) data.getSerializableExtra("user");
-        if (entity != null) {
+        if (data != null) {
+            UserEntity entity = (UserEntity) data.getSerializableExtra("user");
+            context = this;
+            setContentView(R.layout.activity_main);
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+            mSectionsPagerAdapter.setContext(this);
+            // Set up the ViewPager with the sections adapter.
+            mViewPager = (ViewPager) findViewById(R.id.container);
+            mViewPager.setAdapter(mSectionsPagerAdapter);
+            TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+            tabLayout.setupWithViewPager(mViewPager);
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_person);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    final int resultCode1 = 1;
+                    Intent createUserIntent = new Intent(context, CreateUser.class);
+                    startActivityForResult(createUserIntent, resultCode1);
+                }
+            });
             Toast.makeText(this, format("User with id %s created successfully.", entity.toString()), Toast.LENGTH_SHORT).show();
         }
     }

@@ -71,9 +71,31 @@ public class PersonOperations extends AppCompatActivity {
         if (response.getStatusLine().getStatusCode() == 200) {
             doneAndGoBack(view);
         } else {
-            String message = format("Unable to store transaction, reason : %s", response.getStatusLine().getStatusCode());
+            String message = format("Unable to store transaction, status code is : %s", response.getStatusLine().getStatusCode());
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void onClickStorePayment(View view) throws IOException {
+        TextView personId = (TextView) findViewById(R.id.aadhar_id);
+        EditText personName = (EditText) findViewById(R.id.which_person);
+        EditText numberOfLiters = (EditText) findViewById(R.id.amount_paid);
+        PaymentPutEntity entity = new PaymentPutEntity(
+                Integer.valueOf(numberOfLiters.getText().toString()),
+                personName.getText().toString()
+        );
+        HttpResponse response = createPayment(personId.getText().toString(), entity);
+        if (response.getStatusLine().getStatusCode() == 200) {
+            doneAndGoBack(view);
+        } else {
+            String message = format("Unable to store transaction, status code is : %s", response.getStatusLine().getStatusCode());
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private HttpResponse createPayment(String personId, PaymentPutEntity entity) throws IOException {
+        String dairyId = ((MyApplication) getApplication()).getDairyId();
+        return HttpUtils.post(format("%s/persons/%s/payments", dairyId, personId), entity);
     }
 
     private HttpResponse createTransaction(String personId, TransactionPutEntity entity) throws IOException {
@@ -116,6 +138,26 @@ public class PersonOperations extends AppCompatActivity {
                     "numberOfliters=" + numberOfliters +
                     ", personName='" + personName + '\'' +
                     '}';
+        }
+    }
+
+    public class PaymentPutEntity {
+        @JsonProperty("amount")
+        private final int amount;
+        @JsonProperty("paidTo")
+        private final String paidTo;
+
+        private PaymentPutEntity(int amount, String personName) {
+            this.amount = amount;
+            this.paidTo = personName;
+        }
+
+        public int getAmount() {
+            return amount;
+        }
+
+        public String getPersonName() {
+            return paidTo;
         }
     }
 }
