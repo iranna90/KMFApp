@@ -14,7 +14,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.SearchView;
 
 import com.federation.milk.karantaka.kmfapp.R;
 import com.federation.milk.karantaka.kmfapp.services.HttpUtils;
@@ -32,6 +32,8 @@ public class PersonsFragment extends Fragment {
     private Context context;
     private final List<UserEntity> users = new ArrayList<>();
     private static final int LOAD_LIMIT = 15;
+    // initial load
+    private int previousTotal = 0;
 
     public void setContext(Context context) {
         this.context = context;
@@ -41,9 +43,9 @@ public class PersonsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.persons_fragments, container, false);
-        ListView listView = view.findViewById(R.id.person_list);
+        final ListView listView = view.findViewById(R.id.person_list);
         // load 10 items
-        users.addAll(getPersons(0));
+        users.addAll(getPersons(0, null));
         final ListAdapter adapter = new PersonListAdapter(context, users);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -55,37 +57,61 @@ public class PersonsFragment extends Fragment {
                 startActivity(personDetailsScreen);
             }
         });
-        listView.setOnScrollListener(new LazyLoader());
-        view.findViewById(R.id.progressbar_loading).setVisibility(View.GONE);
+        listView.setOnScrollListener(new PersonLoader());
+        SearchView searchView = ((SearchView) view.findViewById(R.id.searchView));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                users.clear();
+                listView.deferNotifyDataSetChanged();
+                users.addAll(getPersons(0, query));
+                listView.deferNotifyDataSetChanged();
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Log.d("Query string request ", newText);
+                return false;
+            }
+        });
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                Log.d("CLOSING", "laod");
+                users.clear();
+                listView.deferNotifyDataSetChanged();
+                previousTotal = 0;
+                users.addAll(getPersons(0, null));
+                listView.deferNotifyDataSetChanged();
+                return false;
+            }
+        });
         return view;
     }
 
-    private List<UserEntity> getPersons(int offset) {
+    private List<UserEntity> getPersons(int offset, String query) {
         try {
-            Log.d("Calling persons ", String.valueOf(offset));
-            Persons persons = HttpUtils.get("khajuri/persons?limit=" + LOAD_LIMIT + "&offset=" + offset, Persons.class);
+            final String url;
+            if (query != null) {
+                url = "khajuri/persons?query=" + query;
+            } else {
+                url = "khajuri/persons?limit=" + LOAD_LIMIT + "&offset=" + offset;
+            }
+            Persons persons = HttpUtils.get(url, Persons.class);
             if (persons != null) {
                 return persons.getUsers();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
-    public class LazyLoader implements AbsListView.OnScrollListener {
+    public class PersonLoader implements AbsListView.OnScrollListener {
 
         private boolean loading = true;
-        // initial load
-        private int previousTotal = 0;
         private int threshold = 5;
-
-        public LazyLoader() {
-        }
-
-        public LazyLoader(int threshold) {
-            this.threshold = threshold;
-        }
 
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -96,7 +122,7 @@ public class PersonsFragment extends Fragment {
         public void onScroll(AbsListView view, int firstVisibleItem,
                              int visibleItemCount, int totalItemCount) {
             Log.d("state changed", "first:" + firstVisibleItem + " v item: " + visibleItemCount + " count: " + totalItemCount);
-            Log.d("loading is ", String.valueOf(loading));
+            Log.d("values", " locading " + String.valueOf(loading) + " previoustotal " + previousTotal);
             if (loading) {
                 if (totalItemCount > previousTotal) {
                     // the loading has finished
@@ -108,7 +134,6 @@ public class PersonsFragment extends Fragment {
             // check if the List needs more data
             if (!loading && ((firstVisibleItem + visibleItemCount) >= (totalItemCount - threshold))) {
                 loading = true;
-                Log.d("Loading new list from " + totalItemCount, "start");
                 // List needs more data. Go fetch !!
                 loadMore(view, firstVisibleItem,
                         visibleItemCount, totalItemCount);
@@ -119,9 +144,8 @@ public class PersonsFragment extends Fragment {
         // and the ListView is ready to add more items.
         public void loadMore(AbsListView view, int firstVisibleItem,
                              int visibleItemCount, int totalItemCount) {
-            Log.d("state changed", "first:" + firstVisibleItem + " v item: " + visibleItemCount + " count: " + totalItemCount);
-            Toast.makeText(context, " First item " + firstVisibleItem + " count " + visibleItemCount + " total " + totalItemCount, Toast.LENGTH_SHORT).show();
-            users.addAll(getPersons(totalItemCount));
+            users.addAll(getPersons(totalItemCount, null));
+            view.deferNotifyDataSetChanged();
         }
     }
 }
