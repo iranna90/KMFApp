@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.federation.milk.karantaka.kmfapp.MyApplication;
 import com.federation.milk.karantaka.kmfapp.R;
@@ -58,7 +59,7 @@ public class PersonDetailsActivity extends AppCompatActivity {
                 Intent addTransaction = new Intent(context, PersonOperations.class);
                 addTransaction.putExtra("user", user);
                 Log.d("Forwarding to intent", user.toString());
-                startActivity(addTransaction);
+                startActivityForResult(addTransaction, 1);
             }
         });
 
@@ -121,6 +122,15 @@ public class PersonDetailsActivity extends AppCompatActivity {
                     format("%s/persons/%s/payments", dairyId, personId),
                     UserTransactions.class
             );
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (data != null) {
+            UserEntity entity = (UserEntity) data.getSerializableExtra("user");
+            Toast.makeText(context, "User added successful " + entity.getFirstName(), Toast.LENGTH_SHORT).show();
         }
     }
 }

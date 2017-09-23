@@ -6,13 +6,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ListAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
 
@@ -30,10 +29,14 @@ import java.util.List;
 
 public class PersonsFragment extends Fragment {
     private Context context;
-    private final List<UserEntity> users = new ArrayList<>();
     private static final int LOAD_LIMIT = 15;
+    private ArrayAdapter<UserEntity> adapter;
+    private ListView listView;
+    final List<UserEntity> users = new ArrayList<>();
     // initial load
     private int previousTotal = 0;
+    private boolean loading = true;
+    private int threshold = 5;
 
     public void setContext(Context context) {
         this.context = context;
@@ -43,11 +46,12 @@ public class PersonsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.persons_fragments, container, false);
-        final ListView listView = view.findViewById(R.id.person_list);
+        listView = view.findViewById(R.id.person_list);
         // load 10 items
-        users.addAll(getPersons(0, null));
-        final ListAdapter adapter = new PersonListAdapter(context, users);
+        adapter = new PersonListAdapter(context, users);
+        adapter.addAll(getPersons(0, null));
         listView.setAdapter(adapter);
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
@@ -57,37 +61,71 @@ public class PersonsFragment extends Fragment {
                 startActivity(personDetailsScreen);
             }
         });
-        listView.setOnScrollListener(new PersonLoader());
+
+        listView.setOnScrollListener(new PersonScrolListener());
+
         SearchView searchView = ((SearchView) view.findViewById(R.id.searchView));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                users.clear();
+                adapter.clear();
                 listView.deferNotifyDataSetChanged();
-                users.addAll(getPersons(0, query));
-                listView.deferNotifyDataSetChanged();
+                adapter.addAll(getPersons(0, query));
+                adapter.notifyDataSetChanged();
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                Log.d("Query string request ", newText);
                 return false;
             }
         });
+
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-                Log.d("CLOSING", "laod");
                 users.clear();
                 listView.deferNotifyDataSetChanged();
                 previousTotal = 0;
-                users.addAll(getPersons(0, null));
-                listView.deferNotifyDataSetChanged();
+                adapter.addAll(getPersons(0, null));
+                adapter.notifyDataSetChanged();
                 return false;
             }
         });
         return view;
+    }
+
+    private class PersonScrolListener implements AbsListView.OnScrollListener {
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+        }
+
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem,
+                             int visibleItemCount, int totalItemCount) {
+            if (loading) {
+                if (totalItemCount > previousTotal) {
+                    // the loading has finished
+                    loading = false;
+                    previousTotal = totalItemCount;
+                }
+            }
+
+            // check if the List needs more data
+            if (!loading && ((firstVisibleItem + visibleItemCount) >= (totalItemCount - threshold))) {
+                loading = true;
+                // List needs more data. Go fetch !!
+                loadMore(totalItemCount);
+            }
+        }
+
+        // Called when the user is nearing the end of the ListView
+        // and the ListView is ready to add more items.
+        public void loadMore(int totalItemCount) {
+            adapter.addAll(getPersons(totalItemCount, null));
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private List<UserEntity> getPersons(int offset, String query) {
@@ -106,46 +144,5 @@ public class PersonsFragment extends Fragment {
             e.printStackTrace();
         }
         return Collections.emptyList();
-    }
-
-    public class PersonLoader implements AbsListView.OnScrollListener {
-
-        private boolean loading = true;
-        private int threshold = 5;
-
-        @Override
-        public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-        }
-
-        @Override
-        public void onScroll(AbsListView view, int firstVisibleItem,
-                             int visibleItemCount, int totalItemCount) {
-            Log.d("state changed", "first:" + firstVisibleItem + " v item: " + visibleItemCount + " count: " + totalItemCount);
-            Log.d("values", " locading " + String.valueOf(loading) + " previoustotal " + previousTotal);
-            if (loading) {
-                if (totalItemCount > previousTotal) {
-                    // the loading has finished
-                    loading = false;
-                    previousTotal = totalItemCount;
-                }
-            }
-
-            // check if the List needs more data
-            if (!loading && ((firstVisibleItem + visibleItemCount) >= (totalItemCount - threshold))) {
-                loading = true;
-                // List needs more data. Go fetch !!
-                loadMore(view, firstVisibleItem,
-                        visibleItemCount, totalItemCount);
-            }
-        }
-
-        // Called when the user is nearing the end of the ListView
-        // and the ListView is ready to add more items.
-        public void loadMore(AbsListView view, int firstVisibleItem,
-                             int visibleItemCount, int totalItemCount) {
-            users.addAll(getPersons(totalItemCount, null));
-            view.deferNotifyDataSetChanged();
-        }
     }
 }
