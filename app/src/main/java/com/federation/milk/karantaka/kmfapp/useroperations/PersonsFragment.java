@@ -111,17 +111,15 @@ public class PersonsFragment extends Fragment {
                     previousTotal = totalItemCount;
                 }
             }
-
             // check if the List needs more data
             if (!loading && ((firstVisibleItem + visibleItemCount) >= (totalItemCount - threshold))) {
                 loading = true;
                 // List needs more data. Go fetch !!
+
                 loadMore(totalItemCount);
             }
         }
 
-        // Called when the user is nearing the end of the ListView
-        // and the ListView is ready to add more items.
         public void loadMore(int totalItemCount) {
             adapter.addAll(getPersons(totalItemCount, null));
             adapter.notifyDataSetChanged();

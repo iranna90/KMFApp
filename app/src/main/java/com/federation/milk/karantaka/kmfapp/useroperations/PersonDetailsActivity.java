@@ -8,7 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.ListAdapter;
+import android.widget.AbsListView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,17 +22,22 @@ import com.federation.milk.karantaka.kmfapp.transactions.TransactionEntity;
 import com.federation.milk.karantaka.kmfapp.transactions.TransactionListAdapter;
 import com.federation.milk.karantaka.kmfapp.transactions.UserTransactions;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import static java.lang.String.format;
 
 public class PersonDetailsActivity extends AppCompatActivity {
+
+    private static final int LIMIT = 15;
+    private int previousTotal = 0;
+    private boolean loading = true;
+    private int threshold = 5;
+
+    private ListView transactionListView;
+
+    private ArrayAdapter<TransactionEntity> transactionListAdapter;
 
     private Context context;
 
@@ -59,78 +65,84 @@ public class PersonDetailsActivity extends AppCompatActivity {
                 Intent addTransaction = new Intent(context, PersonOperations.class);
                 addTransaction.putExtra("user", user);
                 Log.d("Forwarding to intent", user.toString());
-                startActivityForResult(addTransaction, 1);
+                startActivity(addTransaction);
             }
         });
 
-        ExecutorService services = Executors.newFixedThreadPool(2);
-        Future<UserTransactions> tran = services.submit(new GetTransactions(user.getPersonId()));
-        Future<UserTransactions> paym = services.submit(new GetPayments(user.getPersonId()));
-        List<TransactionEntity> transactions = new ArrayList<>();
+        List<TransactionEntity> transactions = null;
         try {
-            //fix it at server and shouuld return empty list
-            if (tran.get() != null) {
-                transactions.addAll(tran.get().getTransactions());
-            }
-            if (paym.get() != null) {
-                transactions.addAll(paym.get().getTransactions());
-            }
-        } catch (InterruptedException e) {
+            transactions = getTransactions(0, user.getPersonId()).getTransactions();
+        } catch (IOException e) {
             e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
+            transactions = Collections.emptyList();
         }
-        Log.d("Transactions are ", transactions.toString());
-        ListView listView = (ListView) findViewById(R.id.transaction_list);
-        TransactionEntity[] values = new TransactionEntity[]{};
-        values = transactions.toArray(values);
-        Log.d("value s are", values.toString());
-        final ListAdapter adapter = new TransactionListAdapter(context, values);
-        listView.setAdapter(adapter);
+        transactionListView = (ListView) findViewById(R.id.transaction_list);
+        transactionListAdapter = new TransactionListAdapter(context, transactions);
+        transactionListView.setAdapter(transactionListAdapter);
+        transactionListView.setOnScrollListener(new TransactionScrolListener(user.getPersonId()));
     }
 
-    private class GetTransactions implements Callable<UserTransactions> {
 
-        private final String personId;
-
-        private GetTransactions(String personId) {
-            this.personId = personId;
-        }
-
-        @Override
-        public UserTransactions call() throws Exception {
-            String dairyId = ((MyApplication) getApplication()).getDairyId();
-            return HttpUtils.get(
-                    format("%s/persons/%s/transactions", dairyId, personId),
-                    UserTransactions.class
-            );
-        }
+    public UserTransactions getTransactions(final int offset, final String personId) throws IOException {
+        String dairyId = ((MyApplication) getApplication()).getDairyId();
+        return HttpUtils.get(
+                format("%s/persons/%s/transactions?limit=%s&offset=%s", dairyId, personId, LIMIT, offset),
+                UserTransactions.class
+        );
     }
 
-    private class GetPayments implements Callable<UserTransactions> {
-
-        private final String personId;
-
-        private GetPayments(String personId) {
-            this.personId = personId;
-        }
-
-        @Override
-        public UserTransactions call() throws Exception {
-            String dairyId = ((MyApplication) getApplication()).getDairyId();
-            return HttpUtils.get(
-                    format("%s/persons/%s/payments", dairyId, personId),
-                    UserTransactions.class
-            );
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    /*protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (data != null) {
             UserEntity entity = (UserEntity) data.getSerializableExtra("user");
             Toast.makeText(context, "User added successful " + entity.getFirstName(), Toast.LENGTH_SHORT).show();
+        }
+    }*/
+
+    private class TransactionScrolListener implements AbsListView.OnScrollListener {
+        private String personId;
+
+        public TransactionScrolListener(String personId) {
+            this.personId = personId;
+        }
+
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+        }
+
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem,
+                             int visibleItemCount, int totalItemCount) {
+            if (loading) {
+                if (totalItemCount > previousTotal) {
+                    // the loading has finished
+                    loading = false;
+                    previousTotal = totalItemCount;
+                }
+            }
+
+            // check if the List needs more data
+            if (!loading && ((firstVisibleItem + visibleItemCount) >= (totalItemCount - threshold))) {
+                loading = true;
+                try {
+                    loadMore(totalItemCount);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(context, "Error loading next transaction elements", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+
+        // Called when the user is nearing the end of the ListView
+        // and the ListView is ready to add more items.
+        public void loadMore(int totalItemCount) throws IOException {
+            UserTransactions transactions = getTransactions(totalItemCount, personId);
+            if (transactions == null) {
+                return;
+            }
+            transactionListAdapter.addAll(transactions.getTransactions());
+            transactionListAdapter.notifyDataSetChanged();
         }
     }
 }

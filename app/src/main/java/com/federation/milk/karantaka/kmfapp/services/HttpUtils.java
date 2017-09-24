@@ -22,17 +22,20 @@ public class HttpUtils {
     public static <T> T get(String url, Class<T> responseType) throws IOException {
         HttpGet request = new HttpGet(getAbsoluteUrl(url));
         HttpResponse httpResponse = client.execute(request);
-        return extractEntityFromResponse(httpResponse, responseType);
+        T result = extractEntityFromResponse(httpResponse, responseType);
+        request.releaseConnection();
+        return result;
     }
 
     public static <T> HttpResponse post(String url, T entity) throws IOException {
-        Log.d("url is", url);
-        Log.d("Entiry is ",entity.toString());
         HttpPost httpPost = new HttpPost(getAbsoluteUrl(url));
         StringEntity body = new StringEntity(objectMapper.writeValueAsString(entity));
         body.setContentType("application/json");
         httpPost.setEntity(body);
-        return client.execute(httpPost);
+        HttpResponse execute = client.execute(httpPost);
+        httpPost.releaseConnection();
+        return execute;
+
     }
 
     private static <T> T extractEntityFromResponse(final HttpResponse response, final Class<T> clazz) throws IOException {

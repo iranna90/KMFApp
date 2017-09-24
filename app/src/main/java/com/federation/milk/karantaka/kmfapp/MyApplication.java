@@ -17,4 +17,14 @@ public class MyApplication extends Application {
     }
 
     private String dairyId = "khajuri";
+
+    private int pricePerLiter = 41;
+
+    public int getPricePerLiter() {
+        return pricePerLiter;
+    }
+
+    public void setPricePerLiter(int pricePerLiter) {
+        this.pricePerLiter = pricePerLiter;
+    }
 }

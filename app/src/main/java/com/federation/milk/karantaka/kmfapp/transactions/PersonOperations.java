@@ -61,12 +61,21 @@ public class PersonOperations extends AppCompatActivity {
 
     public void onClickStoreTransaction(View view) throws IOException {
         TextView personId = (TextView) findViewById(R.id.aadhar_id);
-        EditText personName = (EditText) findViewById(R.id.which_person);
-        EditText numberOfLiters = (EditText) findViewById(R.id.number_of_liters);
+        EditText personName = (EditText) findViewById(R.id.transaction_user);
+        EditText numberOfLitersView = (EditText) findViewById(R.id.number_of_liters);
+        Integer numberOfLiters = Integer.valueOf(numberOfLitersView.getText().toString());
+        if (numberOfLiters != null && numberOfLiters <= 0) {
+            Toast.makeText(this, "Number of listers should be greater then 0", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         TransactionPutEntity transactionEntity = new TransactionPutEntity(
-                Integer.valueOf(numberOfLiters.getText().toString()),
-                personName.getText().toString()
+                numberOfLiters,
+                personName.getText().toString(),
+                calculateAmount(numberOfLiters),
+                Type.DEPOSITED
         );
+
         HttpResponse response = createTransaction(personId.getText().toString(), transactionEntity);
         if (response.getStatusLine().getStatusCode() == 200) {
             doneAndGoBack(view);
@@ -76,26 +85,28 @@ public class PersonOperations extends AppCompatActivity {
         }
     }
 
+    private int calculateAmount(int numberOfLiters) {
+        int pricePerLiter = ((MyApplication) getApplication()).getPricePerLiter();
+        return numberOfLiters * pricePerLiter;
+    }
+
     public void onClickStorePayment(View view) throws IOException {
         TextView personId = (TextView) findViewById(R.id.aadhar_id);
-        EditText personName = (EditText) findViewById(R.id.which_person);
-        EditText numberOfLiters = (EditText) findViewById(R.id.amount_paid);
-        PaymentPutEntity entity = new PaymentPutEntity(
-                Integer.valueOf(numberOfLiters.getText().toString()),
-                personName.getText().toString()
+        EditText personName = (EditText) findViewById(R.id.payment_user);
+        EditText amountPaid = (EditText) findViewById(R.id.amount_paid);
+        TransactionPutEntity entity = new TransactionPutEntity(
+                0,
+                personName.getText().toString(),
+                Integer.valueOf(amountPaid.getText().toString()),
+                Type.PAID
         );
-        HttpResponse response = createPayment(personId.getText().toString(), entity);
+        HttpResponse response = createTransaction(personId.getText().toString(), entity);
         if (response.getStatusLine().getStatusCode() == 200) {
             doneAndGoBack(view);
         } else {
             String message = format("Unable to store transaction, status code is : %s", response.getStatusLine().getStatusCode());
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private HttpResponse createPayment(String personId, PaymentPutEntity entity) throws IOException {
-        String dairyId = ((MyApplication) getApplication()).getDairyId();
-        return HttpUtils.post(format("%s/persons/%s/payments", dairyId, personId), entity);
     }
 
     private HttpResponse createTransaction(String personId, TransactionPutEntity entity) throws IOException {
@@ -109,7 +120,8 @@ public class PersonOperations extends AppCompatActivity {
     }
 
     private void doneAndGoBack(View view) {
-        setResult(RESULT_OK);
+        Intent goingBack = new Intent();
+        setResult(RESULT_OK, goingBack);
         finish();
     }
 
@@ -118,10 +130,16 @@ public class PersonOperations extends AppCompatActivity {
         private final int numberOfliters;
         @JsonProperty("personName")
         private final String personName;
+        @JsonProperty("amount")
+        private final int amount;
+        @JsonProperty("transactionType")
+        private final Type type;
 
-        private TransactionPutEntity(int numberOfliters, String personName) {
+        private TransactionPutEntity(int numberOfliters, String personName, int amount, Type type) {
             this.numberOfliters = numberOfliters;
             this.personName = personName;
+            this.amount = amount;
+            this.type = type;
         }
 
         public int getNumberOfliters() {
@@ -132,32 +150,22 @@ public class PersonOperations extends AppCompatActivity {
             return personName;
         }
 
+        public int getAmount() {
+            return amount;
+        }
+
+        public Type getType() {
+            return type;
+        }
+
         @Override
         public String toString() {
             return "TransactionPutEntity{" +
                     "numberOfliters=" + numberOfliters +
                     ", personName='" + personName + '\'' +
+                    ", amount=" + amount +
+                    ", type=" + type +
                     '}';
-        }
-    }
-
-    public class PaymentPutEntity {
-        @JsonProperty("amount")
-        private final int amount;
-        @JsonProperty("paidTo")
-        private final String paidTo;
-
-        private PaymentPutEntity(int amount, String personName) {
-            this.amount = amount;
-            this.paidTo = personName;
-        }
-
-        public int getAmount() {
-            return amount;
-        }
-
-        public String getPersonName() {
-            return paidTo;
         }
     }
 }
