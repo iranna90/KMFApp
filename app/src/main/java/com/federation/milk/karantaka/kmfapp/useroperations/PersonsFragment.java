@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +39,7 @@ public class PersonsFragment extends Fragment {
     private int previousTotal = 0;
     private boolean loading = true;
     private int threshold = 5;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public void setContext(Context context) {
         this.context = context;
@@ -69,7 +72,6 @@ public class PersonsFragment extends Fragment {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 adapter.clear();
-                listView.deferNotifyDataSetChanged();
                 adapter.addAll(getPersons(0, query));
                 adapter.notifyDataSetChanged();
                 return false;
@@ -84,15 +86,28 @@ public class PersonsFragment extends Fragment {
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-                users.clear();
-                listView.deferNotifyDataSetChanged();
-                previousTotal = 0;
-                adapter.addAll(getPersons(0, null));
-                adapter.notifyDataSetChanged();
-                return false;
+                return reload();
+            }
+        });
+
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh_users);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                reload();
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
         return view;
+    }
+
+    private boolean reload() {
+        adapter.clear();
+        previousTotal = 0;
+        loading = false;
+        adapter.addAll(getPersons(0, null));
+        adapter.notifyDataSetChanged();
+        return false;
     }
 
     private class PersonScrolListener implements AbsListView.OnScrollListener {

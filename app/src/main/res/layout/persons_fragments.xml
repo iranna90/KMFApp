@@ -9,12 +9,18 @@
         android:layout_height="wrap_content"
         android:background="@color/search_background" />
 
-    <ListView
-        android:id="@+id/person_list"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/refresh_users"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/searchView"
-        android:layout_marginBottom="20dp"
-        android:paddingBottom="30dp"
-        android:visibility="visible" />
+        android:layout_below="@+id/searchView">
+
+        <ListView
+            android:id="@+id/person_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:paddingBottom="30dp"
+            android:visibility="visible" />
+    </android.support.v4.widget.SwipeRefreshLayout>
 </RelativeLayout>
