@@ -14,7 +14,7 @@ import cz.msebera.android.httpclient.entity.StringEntity;
 import cz.msebera.android.httpclient.impl.client.HttpClientBuilder;
 
 public class HttpUtils {
-    private static final String BASE_URL = "http://192.168.178.178:1234/kmf/dairies/";
+    private static final String BASE_URL = "https://b6b34867.ngrok.io/kmf/dairies/";
 
     private static final HttpClient client = HttpClientBuilder.create().build();
     private static final ObjectMapper objectMapper = new ObjectMapper();

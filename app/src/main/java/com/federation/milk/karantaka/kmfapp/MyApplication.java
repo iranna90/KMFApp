@@ -8,6 +8,10 @@ import android.app.Application;
 
 public class MyApplication extends Application {
 
+    private int pricePerLiter = 41;
+
+    private String dairyId = "khajuri";
+
     public String getDairyId() {
         return dairyId;
     }
@@ -15,10 +19,6 @@ public class MyApplication extends Application {
     public void setDairyId(String dairyId) {
         this.dairyId = dairyId;
     }
-
-    private String dairyId = "khajuri";
-
-    private int pricePerLiter = 41;
 
     public int getPricePerLiter() {
         return pricePerLiter;
