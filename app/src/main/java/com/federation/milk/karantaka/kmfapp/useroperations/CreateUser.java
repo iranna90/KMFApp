@@ -38,6 +38,7 @@ public class CreateUser extends AppCompatActivity {
         UserEntity userEntity = new UserEntity(0, firstName.getText().toString(), lastName.getText().toString(), personId.getText().toString());
         createUser(userEntity);
         Intent goingBack = new Intent();
+        goingBack.putExtra("updated", -1);
         goingBack.putExtra("user", userEntity);
         setResult(RESULT_OK, goingBack);
         finish();

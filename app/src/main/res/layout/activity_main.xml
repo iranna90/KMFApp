@@ -34,28 +34,21 @@
 
         </android.support.design.widget.AppBarLayout>
 
-
-        <android.support.design.widget.AppBarLayout
-            android:id="@+id/bottom_bar"
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/refresh_users"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/appbar"
-            android:paddingTop="@dimen/appbar_padding_top"
-            android:theme="@style/AppTheme.AppBarOverlay">
+            android:layout_marginTop="5dp">
 
-            <android.support.design.widget.TabLayout
-                android:id="@+id/tabs"
+            <ListView
+                android:id="@+id/person_list"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </android.support.design.widget.AppBarLayout>
-
-        <android.support.v4.view.ViewPager
-            android:id="@+id/container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/bottom_bar"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:paddingBottom="30dp"
+                android:visibility="visible" />
+        </android.support.v4.widget.SwipeRefreshLayout>
 
     </RelativeLayout>
 

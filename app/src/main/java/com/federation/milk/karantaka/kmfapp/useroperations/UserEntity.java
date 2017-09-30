@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 public class UserEntity implements Serializable {
 
-    private final int amount;
+    private int amount;
     private final String firstName;
     private final String lastName;
     private final String personId;
@@ -41,6 +41,10 @@ public class UserEntity implements Serializable {
 
     public UserEntity clone(final long newAmount) {
         return new UserEntity((int) newAmount, firstName, lastName, personId);
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 
     @Override
