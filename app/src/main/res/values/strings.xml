@@ -24,4 +24,6 @@
     <string name="save">Save</string>
     <string name="cancel_action">Cancel</string>
     <string name="action_search">search...</string>
+    <string name="close">Close</string>
+    <string name="open">Open</string>
 </resources>
