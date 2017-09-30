@@ -105,14 +105,21 @@
             </RelativeLayout>
         </LinearLayout>
 
-        <ListView
-            android:id="@+id/transaction_list"
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/refresh_transactions"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/person_details"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/background_image"
-            android:paddingBottom="30dp" />
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/person_details">
+
+            <ListView
+                android:id="@+id/transaction_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/person_details"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/background_image"
+                android:paddingBottom="30dp" />
+        </android.support.v4.widget.SwipeRefreshLayout>
     </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -43,6 +44,7 @@ public class PersonDetailsActivity extends AppCompatActivity {
     private Context context;
     private TextView amountView;
     private UserEntity user;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,8 +86,32 @@ public class PersonDetailsActivity extends AppCompatActivity {
         transactionListAdapter = new TransactionListAdapter(context, transactions);
         transactionListView.setAdapter(transactionListAdapter);
         transactionListView.setOnScrollListener(new TransactionScrolListener(user.getPersonId()));
+
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_transactions);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                reload();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
     }
 
+    private boolean reload() {
+        transactionListAdapter.clear();
+        previousTotal = 0;
+        loading = false;
+        List<TransactionEntity> transactions = Collections.emptyList();
+        try {
+            transactions = getTransactions(0, user.getPersonId()).getTransactions();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Error loading transactions " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        transactionListAdapter.addAll(transactions);
+        transactionListAdapter.notifyDataSetChanged();
+        return false;
+    }
 
     public UserTransactions getTransactions(final int offset, final String personId) throws IOException {
         String dairyId = ((MyApplication) getApplication()).getDairyId();
