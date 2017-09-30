@@ -38,7 +38,7 @@ public class HttpUtils {
 
     }
 
-    private static <T> T extractEntityFromResponse(final HttpResponse response, final Class<T> clazz) throws IOException {
+    public static <T> T extractEntityFromResponse(final HttpResponse response, final Class<T> clazz) throws IOException {
         if (response.getStatusLine().getStatusCode() == 200) {
             return objectMapper.readValue(response.getEntity().getContent(), clazz);
         }

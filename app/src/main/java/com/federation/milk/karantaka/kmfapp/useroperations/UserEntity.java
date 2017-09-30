@@ -39,6 +39,10 @@ public class UserEntity implements Serializable {
         return amount;
     }
 
+    public UserEntity clone(final long newAmount) {
+        return new UserEntity((int) newAmount, firstName, lastName, personId);
+    }
+
     @Override
     public String toString() {
         return "UserEntity{" +

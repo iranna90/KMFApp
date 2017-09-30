@@ -78,7 +78,8 @@ public class PersonOperations extends AppCompatActivity {
 
         HttpResponse response = createTransaction(personId.getText().toString(), transactionEntity);
         if (response.getStatusLine().getStatusCode() == 200) {
-            doneAndGoBack(view);
+            TransactionEntity entity = HttpUtils.extractEntityFromResponse(response, TransactionEntity.class);
+            doneAndGoBack(view, entity);
         } else {
             String message = format("Unable to store transaction, status code is : %s", response.getStatusLine().getStatusCode());
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
@@ -102,7 +103,8 @@ public class PersonOperations extends AppCompatActivity {
         );
         HttpResponse response = createTransaction(personId.getText().toString(), entity);
         if (response.getStatusLine().getStatusCode() == 200) {
-            doneAndGoBack(view);
+            TransactionEntity transactionEntity = HttpUtils.extractEntityFromResponse(response, TransactionEntity.class);
+            doneAndGoBack(view, transactionEntity);
         } else {
             String message = format("Unable to store transaction, status code is : %s", response.getStatusLine().getStatusCode());
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
@@ -116,11 +118,12 @@ public class PersonOperations extends AppCompatActivity {
 
 
     public void onClickCancelAction(View view) {
-        doneAndGoBack(view);
+        doneAndGoBack(view, null);
     }
 
-    private void doneAndGoBack(View view) {
+    private void doneAndGoBack(View view, TransactionEntity entity) {
         Intent goingBack = new Intent();
+        goingBack.putExtra("transaction", entity);
         setResult(RESULT_OK, goingBack);
         finish();
     }

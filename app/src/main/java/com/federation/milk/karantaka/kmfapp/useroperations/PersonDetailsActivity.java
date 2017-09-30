@@ -20,6 +20,7 @@ import com.federation.milk.karantaka.kmfapp.services.HttpUtils;
 import com.federation.milk.karantaka.kmfapp.transactions.PersonOperations;
 import com.federation.milk.karantaka.kmfapp.transactions.TransactionEntity;
 import com.federation.milk.karantaka.kmfapp.transactions.TransactionListAdapter;
+import com.federation.milk.karantaka.kmfapp.transactions.Type;
 import com.federation.milk.karantaka.kmfapp.transactions.UserTransactions;
 
 import java.io.IOException;
@@ -40,6 +41,8 @@ public class PersonDetailsActivity extends AppCompatActivity {
     private ArrayAdapter<TransactionEntity> transactionListAdapter;
 
     private Context context;
+    private TextView amountView;
+    private UserEntity user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,11 +54,12 @@ public class PersonDetailsActivity extends AppCompatActivity {
 
 
         Intent activityThatCalled = getIntent();
-        final UserEntity user = (UserEntity) activityThatCalled.getSerializableExtra("user");
+        user = (UserEntity) activityThatCalled.getSerializableExtra("user");
         ((TextView) findViewById(R.id.first_name)).setText(user.getFirstName());
         ((TextView) findViewById(R.id.last_name)).setText(user.getLastName());
         ((TextView) findViewById(R.id.aadhar_id)).setText(user.getPersonId());
-        ((TextView) findViewById(R.id.amount)).setText(String.valueOf(user.getAmount()));
+        amountView = ((TextView) findViewById(R.id.amount));
+        amountView.setText(String.valueOf(user.getAmount()));
 
         // floating add action
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_transaction_action);
@@ -65,7 +69,7 @@ public class PersonDetailsActivity extends AppCompatActivity {
                 Intent addTransaction = new Intent(context, PersonOperations.class);
                 addTransaction.putExtra("user", user);
                 Log.d("Forwarding to intent", user.toString());
-                startActivity(addTransaction);
+                startActivityForResult(addTransaction, 4);
             }
         });
 
@@ -91,13 +95,18 @@ public class PersonDetailsActivity extends AppCompatActivity {
         );
     }
 
-    /*protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (data != null) {
-            UserEntity entity = (UserEntity) data.getSerializableExtra("user");
-            Toast.makeText(context, "User added successful " + entity.getFirstName(), Toast.LENGTH_SHORT).show();
+        if (resultCode == -1 & requestCode == 4 & data != null) {
+            TransactionEntity entity = (TransactionEntity) data.getSerializableExtra("transaction");
+            transactionListAdapter.insert(entity, 0);
+            transactionListAdapter.notifyDataSetChanged();
+            long changed = entity.getType() == Type.PAID ? (-entity.getAmount()) : entity.getAmount();
+            long newAmount = Long.valueOf(amountView.getText().toString()) + changed;
+            user = user.clone(newAmount);
+            amountView.setText(String.valueOf(newAmount));
         }
-    }*/
+    }
 
     private class TransactionScrolListener implements AbsListView.OnScrollListener {
         private String personId;
