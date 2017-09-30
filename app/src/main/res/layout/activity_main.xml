@@ -6,14 +6,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_image"
-    android:fitsSystemWindows="true"
     tools:context="com.federation.milk.karantaka.kmfapp.MainActivity">
 
     <android.support.design.widget.NavigationView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:menu="@menu/navigation_bar" />
+        android:elevation="10dp"
+        android:fitsSystemWindows="true"
+        android:textAlignment="2"
+        android:textAppearance="?attr/menu"
+        app:itemIconTint="#FF00E5FF"
+        app:menu="@menu/navigation_bar"
+        app:headerLayout="@layout/navigation_header"/>
 
     <RelativeLayout
         android:layout_width="wrap_content"
