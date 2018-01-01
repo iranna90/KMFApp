@@ -1,7 +1,5 @@
 package com.federation.milk.karantaka.kmfapp.services;
 
-import android.util.Log;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -10,6 +8,7 @@ import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.client.HttpClient;
 import cz.msebera.android.httpclient.client.methods.HttpGet;
 import cz.msebera.android.httpclient.client.methods.HttpPost;
+import cz.msebera.android.httpclient.entity.ByteArrayEntity;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import cz.msebera.android.httpclient.impl.client.HttpClientBuilder;
 
@@ -36,6 +35,16 @@ public class HttpUtils {
         httpPost.releaseConnection();
         return execute;
 
+    }
+
+    public static HttpResponse post(String url, byte[] data) throws IOException {
+        HttpPost httpPost = new HttpPost(url);
+        ByteArrayEntity entity = new ByteArrayEntity(data);
+        entity.setContentType("application/octet-stream");
+        httpPost.setEntity(entity);
+        HttpResponse execute = client.execute(httpPost);
+        httpPost.releaseConnection();
+        return execute;
     }
 
     public static <T> T extractEntityFromResponse(final HttpResponse response, final Class<T> clazz) throws IOException {

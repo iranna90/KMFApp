@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class DairyOperationActivity extends AppCompatActivity {
 
     private Context context;
     private static final int LOAD_LIMIT = 15;
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // needs to chenage
+        // TODO : needs to change
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         context = this;
@@ -132,16 +132,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-       /* int id = item.getItemId();
-
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.settings) {
-            return true;
-        }*/
         if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }

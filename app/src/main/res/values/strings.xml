@@ -30,4 +30,8 @@
     <string name="user_details">User Details</string>
     <string name="close">Close</string>
     <string name="open">Open</string>
+    <string name="user_name">user name</string>
+    <string name="dairy_id">dairy name</string>
+    <string name="password">password</string>
+    <string name="login">Login</string>
 </resources>
